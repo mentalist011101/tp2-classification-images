@@ -2,7 +2,7 @@ import { Tape } from "../components/paper.js";
 import { PageHeader } from "../components/ui.js";
 import { DISEASES } from "../lib/diseases.js";
 import { NOTEBOOK_URL } from "../lib/links.js";
-import { NOTEBOOK_RESULTS } from "../lib/results.js";
+import { NOTEBOOK_RESULTS, OUTSIDERS } from "../lib/results.js";
 
 const MODEL_COLORS = ["var(--color-ink-soft)", "var(--color-kraft)", "var(--color-ember)"] as const;
 
@@ -94,6 +94,69 @@ export function ModelsPage() {
 							<p className="mt-3 text-sm leading-relaxed text-ink-soft">{lesson.text}</p>
 						</article>
 					))}
+				</div>
+			</section>
+
+			<section aria-labelledby="ood-title" className="mt-16">
+				<h2 id="ood-title" className="text-[clamp(1.6rem,3.4vw,2.3rem)]">
+					Et si ce n'est pas du manioc ?
+				</h2>
+				<div className="mt-5 max-w-3xl space-y-4 text-[0.975rem] leading-relaxed text-ink-soft">
+					<p>
+						Un classifieur à cinq classes n'a pas de case « autre chose » : montré une capture d'écran, il répond quand
+						même une maladie, parfois à 70 %. Sa confiance (softmax) ne dit pas « c'est du manioc », seulement « parmi
+						les cinq, c'est celle-ci ».
+					</p>
+					<p>
+						L'application mesure donc d'abord la <strong className="font-semibold text-ink">distance de Mahalanobis</strong>{" "}
+						entre le résumé de l'image (1 280 nombres, juste avant la décision) et les photos de manioc d'entraînement.
+						Le seuil laisse passer 95 % des vraies photos de manioc de validation ; au-delà, l'image est refusée. Testé
+						sur 1 500 images qui ne sont pas du manioc :
+					</p>
+				</div>
+				<div className="mt-8 paper-card overflow-x-auto">
+					<table className="w-full min-w-[36rem] text-left text-sm">
+						<thead>
+							<tr className="border-b border-rule">
+								{["Images", "Refusées", "AUROC distance", "AUROC confiance softmax"].map((heading) => (
+									<th key={heading} scope="col" className="label-mono px-5 py-4 font-medium text-ink-faint">
+										{heading}
+									</th>
+								))}
+							</tr>
+						</thead>
+						<tbody>
+							{OUTSIDERS.map((outsider) => (
+								<tr key={outsider.name} className="border-b border-rule last:border-0">
+									<th scope="row" className="px-5 py-4 font-display font-bold">
+										{outsider.name}
+									</th>
+									<td className="px-5 py-4 font-mono text-xs font-semibold">{Math.round(outsider.rejected * 100)} %</td>
+									<td className="px-5 py-4 font-mono text-xs">{outsider.aurocMahalanobis.toLocaleString("fr-FR")}</td>
+									<td className="px-5 py-4 font-mono text-xs text-ink-faint">{outsider.aurocSoftmax.toLocaleString("fr-FR")}</td>
+								</tr>
+							))}
+							<tr>
+								<th scope="row" className="px-5 py-4 font-display font-bold">
+									Manioc (test), à accepter
+								</th>
+								<td className="px-5 py-4 font-mono text-xs">acceptées à 95 %</td>
+								<td className="px-5 py-4" />
+								<td className="px-5 py-4" />
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<p className="mt-4 max-w-3xl text-sm text-ink-faint">
+					L'AUROC mesure la séparation entre manioc et intrus (1 : parfaite, 0,5 : hasard). La confiance softmax
+					distingue mal le manioc des autres plantes (0,69) ; la distance les sépare presque parfaitement (0,985).
+				</p>
+				<div className="mt-8">
+					<Figure
+						src="/figures/ood_scores.png"
+						alt="Histogrammes du score d'étrangeté pour le manioc et trois familles d'intrus, avec le seuil"
+						caption="Score d'étrangeté (échelle logarithmique). Le manioc de test reste à gauche du seuil ; les autres plantes et les images courantes sont juste au-delà, les captures d'écran très loin."
+					/>
 				</div>
 			</section>
 

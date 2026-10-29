@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Camera, Eye, ImageUp, RotateCcw } from "lucide-react";
+import { Camera, Eye, ImageUp, RotateCcw, ScanSearch } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button, Tape } from "../components/paper.js";
@@ -27,6 +27,7 @@ export function DiagnosticPage() {
 	const [showCam, setShowCam] = useState(true);
 	const [error, setError] = useState<string>();
 	const [busy, setBusy] = useState(false);
+	const [showAnyway, setShowAnyway] = useState(false);
 
 	useEffect(() => {
 		loadModel((progress) => setModel({ status: "loading", progress })).then(
@@ -51,13 +52,16 @@ export function DiagnosticPage() {
 			const diagnosis = await diagnose(bitmap);
 			setResult(diagnosis);
 			setShownClass(argmax(diagnosis.probabilities));
-			setShowCam(true);
+			setShowAnyway(false);
+			setShowCam(!isOutsider(diagnosis));
 		} catch {
 			setError("Impossible d'analyser cette image. Essayez une autre photo (JPEG ou PNG).");
 		} finally {
 			setBusy(false);
 		}
 	};
+
+	const rejected = result !== undefined && isOutsider(result) && !showAnyway;
 
 	const reset = () => {
 		setPhoto(undefined);
@@ -113,7 +117,7 @@ export function DiagnosticPage() {
 								)}
 							</div>
 							<div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-								{result !== undefined ? (
+								{result !== undefined && !rejected ? (
 									<button
 										type="button"
 										onClick={() => setShowCam((value) => !value)}
@@ -137,7 +141,15 @@ export function DiagnosticPage() {
 				<section aria-label="Résultat" className="flex flex-col gap-6">
 					<ModelStatus state={model} />
 					{error !== undefined && <ErrorNotice>{error}</ErrorNotice>}
-					{result !== undefined ? (
+					{result !== undefined && rejected ? (
+						<Unrecognized
+							score={result.oodScore}
+							onShowAnyway={() => {
+								setShowAnyway(true);
+								setShowCam(true);
+							}}
+						/>
+					) : result !== undefined ? (
 						<Verdict result={result} shownClass={shownClass} onShowClass={setShownClass} />
 					) : (
 						<PhotoTips />
@@ -272,7 +284,9 @@ function Verdict({
 		<div className="flex animate-fade-in flex-col gap-6">
 			<div className="relative paper-card p-6">
 				<span aria-hidden className="absolute top-0 bottom-0 left-0 w-1.5" style={{ backgroundColor: disease.color }} />
-				<p className="label-mono text-ink-faint">{uncertain ? "Diagnostic incertain" : "Diagnostic"}</p>
+				<p className="label-mono text-ink-faint">
+					{isOutsider(result) ? "Réponse forcée · image non reconnue" : uncertain ? "Diagnostic incertain" : "Diagnostic"}
+				</p>
 				<h2 className="mt-2 text-[2.2rem] leading-none">{disease.name}</h2>
 				<p className="mt-2 font-editorial text-ink-soft italic">
 					{disease.english} · {disease.code}
@@ -351,6 +365,45 @@ function PhotoTips() {
 			</ul>
 		</div>
 	);
+}
+
+function Unrecognized({ score, onShowAnyway }: { readonly score: number; readonly onShowAnyway: () => void }) {
+	return (
+		<div className="flex animate-fade-in flex-col gap-6">
+			<div className="relative paper-card p-6">
+				<span aria-hidden className="absolute top-0 bottom-0 left-0 w-1.5 bg-ink-faint" />
+				<p className="label-mono text-ink-faint">Image non reconnue</p>
+				<h2 className="mt-2 text-[2rem] leading-tight">Ce n'est pas une photo de manioc.</h2>
+				<p className="mt-4 text-sm leading-relaxed text-ink-soft">
+					Cette image est trop loin de toutes les photos de manioc vues à l'entraînement pour qu'un diagnostic ait un
+					sens. Le modèle ne connaît que cinq classes : face à autre chose, il répondrait quand même l'une d'elles,
+					parfois avec une forte « confiance ».
+				</p>
+				<p className="mt-4 font-mono text-xs text-ink-faint">
+					score d'étrangeté {formatScore(score)} · seuil {formatScore(MODEL.oodThreshold)}
+				</p>
+			</div>
+			<div className="sticky-note -rotate-[0.6deg] bg-sun p-5 text-[#16181d]">
+				<p className="label-mono opacity-60">Comment c'est décidé</p>
+				<p className="mt-2 text-sm leading-relaxed">
+					Le réseau résume chaque image en 1 280 nombres. On mesure la distance (de Mahalanobis) entre ce résumé et
+					les photos de manioc d'entraînement ; au-delà du seuil, qui laisse passer 95 % des vraies photos de manioc,
+					l'image est refusée.
+				</p>
+			</div>
+			<Button variant="outline" onClick={onShowAnyway} className="self-start">
+				<ScanSearch className="size-4" /> Voir quand même la réponse du modèle
+			</Button>
+		</div>
+	);
+}
+
+function isOutsider(result: Diagnosis): boolean {
+	return result.oodScore > MODEL.oodThreshold;
+}
+
+function formatScore(score: number): string {
+	return Math.round(score).toLocaleString("fr-FR");
 }
 
 function argmax(values: readonly number[]): number {

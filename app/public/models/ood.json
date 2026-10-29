@@ -1,0 +1,33 @@
+{
+  "methode": "distance de Mahalanobis minimale aux centres de classe (covariance commune Ledoit-Wolf)",
+  "k": 1280,
+  "seuil": 2266.615478515625,
+  "quantile_validation": 0.95,
+  "manioc_test_accepte": 0.953,
+  "intrus": {
+    "autres plantes (PlantVillage)": {
+      "images": 500,
+      "refusees": 0.942,
+      "auroc_mahalanobis": 0.985,
+      "auroc_confiance_softmax": 0.689,
+      "confiance_softmax_moyenne": 0.749
+    },
+    "images courantes (ImageNet)": {
+      "images": 500,
+      "refusees": 0.97,
+      "auroc_mahalanobis": 0.99,
+      "auroc_confiance_softmax": 0.765,
+      "confiance_softmax_moyenne": 0.694
+    },
+    "captures d'écran": {
+      "images": 500,
+      "refusees": 1.0,
+      "auroc_mahalanobis": 1.0,
+      "auroc_confiance_softmax": 0.954,
+      "confiance_softmax_moyenne": 0.487
+    }
+  },
+  "manioc_confiance_softmax_moyenne": 0.855,
+  "ecart_graphe_numpy": 2.1542305717048293e-07,
+  "taille_mo": 22.7
+}

@@ -43,9 +43,26 @@ export const NOTEBOOK_RESULTS: readonly ModelResult[] = [
 // (kaggle/export/train_export.py) : ses scores sont mesurés sur le modèle ONNX lui-même. La
 // version quantifiée en int8 (4,5 Mo) perdait près de 3 points de F1 macro : on garde float32.
 export const MODEL = {
-	file: "/models/manioc_effnetb0.onnx",
+	file: "/models/manioc_effnetb0_ood.onnx",
 	precision: "float32",
-	sizeMb: 16.2,
+	sizeMb: 22.7,
 	accuracy: 0.739,
 	f1Macro: 0.633,
+	// Seuil du score d'étrangeté : 95 % des photos de manioc de validation sont en dessous (kaggle/ood).
+	oodThreshold: 2266.6,
 } as const;
+
+export interface OutsiderResult {
+	readonly name: string;
+	readonly rejected: number;
+	readonly aurocMahalanobis: number;
+	readonly aurocSoftmax: number;
+}
+
+// Détecteur d'images hors distribution (kaggle/ood/ood_detector.py) : 500 images par famille,
+// le manioc de test est accepté à 95,3 %.
+export const OUTSIDERS: readonly OutsiderResult[] = [
+	{ name: "Autres plantes (PlantVillage)", rejected: 0.942, aurocMahalanobis: 0.985, aurocSoftmax: 0.689 },
+	{ name: "Images courantes (ImageNet)", rejected: 0.97, aurocMahalanobis: 0.99, aurocSoftmax: 0.765 },
+	{ name: "Captures d'écran", rejected: 1, aurocMahalanobis: 1, aurocSoftmax: 0.954 },
+];

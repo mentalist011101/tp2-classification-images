@@ -13,6 +13,8 @@ const ORT_URL = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.1/dist/";
 export interface Diagnosis {
 	readonly probabilities: readonly number[];
 	readonly cams: readonly Float32Array[];
+	// Distance de Mahalanobis minimale aux photos de manioc d'entraînement (kaggle/ood).
+	readonly oodScore: number;
 	readonly milliseconds: number;
 }
 
@@ -32,7 +34,8 @@ export async function diagnose(bitmap: ImageBitmap): Promise<Diagnosis> {
 	const milliseconds = performance.now() - start;
 	const probabilities = Array.from(outputs[model.outputNames[0]].data as Float32Array);
 	const cams = splitCams(outputs[model.outputNames[1]].data as Float32Array);
-	return { probabilities, cams, milliseconds };
+	const oodScore = (outputs.ood_score.data as Float32Array)[0];
+	return { probabilities, cams, oodScore, milliseconds };
 }
 
 // Carte de chaleur d'une classe, en RGBA 7 × 7, à étirer sur la photo.

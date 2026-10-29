@@ -41,6 +41,23 @@ Lab), découpage stratifié 8 400 / 1 800 / 1 800. Scores sur les 1 800 photos d
 - **SAM** : un clic au centre ne détoure souvent qu'une foliole (9 % de l'image) ; sur cette
   seule partie, le F1 tombe de 0,70 à 0,19.
 
+## Et si ce n'est pas du manioc ?
+
+Un classifieur à cinq classes répond toujours l'une d'elles, même devant une capture d'écran.
+L'application refuse donc d'abord les images trop éloignées du manioc : distance de Mahalanobis
+minimale entre les 1 280 caractéristiques de l'image et les centres des classes (covariance
+commune Ledoit-Wolf), seuil réglé pour accepter 95 % du manioc de validation. Le calcul est
+greffé dans le graphe ONNX par [`kaggle/ood/ood_detector.py`](kaggle/ood/ood_detector.py).
+
+| Images (500 par famille) | Refusées | AUROC distance | AUROC confiance softmax |
+|---|---|---|---|
+| Autres plantes (PlantVillage) | 94 % | 0,985 | 0,689 |
+| Images courantes (ImageNet) | 97 % | 0,990 | 0,765 |
+| Captures d'écran synthétiques | 100 % | 1,000 | 0,954 |
+
+Le manioc de test est accepté à 95,3 %. La confiance softmax, elle, sépare mal le manioc des
+autres plantes.
+
 ## Reproduire
 
 Le notebook s'exécute sur Kaggle, où les données sont hébergées (les règles de la compétition

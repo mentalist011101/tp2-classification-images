@@ -77,8 +77,10 @@ export function AboutPage() {
 							sur toute la plante : photographiez le plant, pas un fragment de feuille.
 						</li>
 						<li>
-							<strong className="text-white">Cinq classes seulement.</strong> Une carence, un insecte ou une autre
-							plante seront rangés de force dans l'une d'elles.
+							<strong className="text-white">Cinq classes seulement.</strong> Les images trop éloignées des photos de
+							manioc sont refusées (94 % des autres plantes et 97 % des images courantes testées), mais une plante
+							proche du manioc, une carence ou un insecte peuvent encore passer et être rangés de force dans une des
+							cinq classes.
 						</li>
 					</ul>
 				</div>

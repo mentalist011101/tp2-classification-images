@@ -29,7 +29,7 @@ kaggle/out/
 outputs/
 kaggle/run*/
 kaggle/figs*/
-kaggle/export/out/
+kaggle/*/out/
 kaggle/export_test/
 kaggle/run_notebook.py
 kaggle/sauvegarde_*.ipynb

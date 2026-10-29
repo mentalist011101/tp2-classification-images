@@ -1,0 +1,13 @@
+{
+  "id": "fokouosaadieluciano/tp2-ood-manioc",
+  "title": "tp2-ood-manioc",
+  "code_file": "ood_detector.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "competition_sources": ["cassava-leaf-disease-classification"],
+  "dataset_sources": ["emmarex/plantdisease", "ifigotin/imagenetmini-1000"],
+  "kernel_sources": []
+}
