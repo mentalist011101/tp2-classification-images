@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+dist/
+.vercel
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Éditeurs / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Les images de la compétition Kaggle ne sont pas redistribuées : le notebook les relit sur Kaggle.
+data/cassava/
+# Copie du notebook envoyée à Kaggle et sorties téléchargées.
+kaggle/*.ipynb
+kaggle/out/
+outputs/
+kaggle/run*/
+kaggle/figs*/
+kaggle/export/out/
+kaggle/export_test/
+kaggle/run_notebook.py
+kaggle/sauvegarde_*.ipynb

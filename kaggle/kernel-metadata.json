@@ -1,0 +1,13 @@
+{
+  "id": "fokouosaadieluciano/tp2-classification-manioc",
+  "title": "tp2-classification-manioc",
+  "code_file": "run_notebook.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "competition_sources": ["cassava-leaf-disease-classification"],
+  "dataset_sources": [],
+  "kernel_sources": []
+}

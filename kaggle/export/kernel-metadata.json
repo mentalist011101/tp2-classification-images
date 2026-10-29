@@ -1,0 +1,13 @@
+{
+  "id": "fokouosaadieluciano/tp2-export-manioc",
+  "title": "tp2-export-manioc",
+  "code_file": "train_export.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "competition_sources": ["cassava-leaf-disease-classification"],
+  "dataset_sources": [],
+  "kernel_sources": []
+}

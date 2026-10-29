@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uvx ruff check --select E,F,W --ignore E402,E501 notebooks kaggle
+      - name: Le notebook publié est exécuté
+        run: |
+          python3 - <<'PY'
+          import json
+          nb = json.load(open("notebooks/classification_manioc.ipynb", encoding="utf-8"))
+          code = [c for c in nb["cells"] if c["cell_type"] == "code"]
+          missing = [i for i, c in enumerate(code) if not c.get("outputs")]
+          errors = [o for c in code for o in c.get("outputs", []) if o.get("output_type") == "error"]
+          assert not missing and not errors, f"cellules sans sortie : {missing}, erreurs : {len(errors)}"
+          PY
